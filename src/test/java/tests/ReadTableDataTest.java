@@ -28,7 +28,6 @@ public class ReadTableDataTest {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-
     }
     // this test is not dependent on test_tbl being created
     public void verifyJoinedTableQueryData() throws SQLException {

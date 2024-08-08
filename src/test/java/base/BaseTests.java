@@ -1,14 +1,12 @@
 package base;
 
-import org.testng.annotations.*;
-
 import java.sql.*;
 
 public class BaseTests {
 
     private static String dbURL = "jdbc:mysql://localhost:3306/sakila";
     private static String username = "root";
-    private static String password = "horNET_7";
+    private static String password = "********";    // obfuscating since this will be public soon
 
     public static Connection connectDB() throws SQLException {
         return DriverManager.getConnection(dbURL, username, password);
