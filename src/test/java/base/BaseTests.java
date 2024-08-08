@@ -1,51 +1,72 @@
 package base;
 
+import org.testng.annotations.*;
+
 import java.sql.*;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
 
 public class BaseTests {
 
-    public static Connection conx = null;
-    public static ResultSet results;
-    public static Statement statement;
+    private static String dbURL = "jdbc:mysql://localhost:3306/sakila";
+    private static String username = "root";
+    private static String password = "horNET_7";
 
-    // general SQL statement operation
-    public void executeReadQuery(String query) throws SQLException {
-        initiateConnection();
-        statement = conx.createStatement();
-        results = statement.executeQuery(query);
+    public static Connection connectDB() throws SQLException {
+        return DriverManager.getConnection(dbURL, username, password);
     }
 
+    public static void createTableWithData() throws SQLException {
+        String testTableSchema =
+        "CREATE TABLE IF NOT EXISTS test_tbl " +
+                "(" + "id INT AUTO_INCREMENT PRIMARY KEY, "
+                + "name VARCHAR(40), "
+                + "email VARCHAR(100), "
+                + "country VARCHAR(10), "
+                + "password VARCHAR(25)"
+                + ")";
 
-    // for SQL INSERT, UPDATE and DELETE statements
-    public void executeUpdateQuery(String query) throws SQLException {
-        initiateConnection();
-        statement = conx.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-        statement.executeUpdate(query);
-    }
+        String tableData = "INSERT INTO test_tbl " +
+                "(name, email, country, password) VALUES "
+                + "('john doe', 'jdoe@barnstormers.com', 'AUS', 'rose6ud333'), "
+                + "('jane sanders', 'janiac@starbucks.com', 'USA', 'br3@tht@kin6'), "
+                + "('george peterson', 'georgepe@hotmail.com', 'IRL', 'hellzhighway12121'), "
+                + "('lena white', 'lenawh@gmail.com', 'UK', 'salTY__dog$'), "
+                + "('bob zychck', 'zychck@timhortons.com', 'CAN', 'mol$ons_rocKs!'), "
+                + "('bill gates', 'billg@microsoft.com', 'USA', 'azuremember1975'), "
+                + "('joe rogan', 'joerogan@rogan.com', 'USA', 'poDCAST_sw33tn35'), "
+                + "('gern blanstan', 'gernblan@sveirge.gov', 'SWE', 'nandor%56RAAMto'), "
+                + "('helga schwartzkopf', 'helga167@flugel.com', 'DEU', '$chweinI5tGUT')";
 
-    @BeforeTest
-    // connect to sample MySQL db ""
-    public void initiateConnection() throws SQLException {
-        String dbURL = "jdbc:mysql://localhost:3306/sakila";
-        String username = "root";
-        String password = "horNET_7";
-        try {
-            conx = DriverManager.getConnection(dbURL, username, password);
-            if (conx != null) {
-                System.out.println("Connected");
-            }
+        try (Connection connection = connectDB();
+             Statement statement = connection.createStatement()) {
+            statement.execute(testTableSchema);
+            System.out.println("Table created ok!");
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
+        insertRecords(tableData);
+    }
+    public static void insertRecords(String insertSQL) throws SQLException {
+
+        try (Connection connection = connectDB();
+             Statement statement = connection.createStatement()) {
+            int rowsIn = statement.executeUpdate(insertSQL);
+            System.out.println(rowsIn + " rows inserted ok!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    @AfterTest
-    public void closeConnection() throws SQLException {
-        results.close();
-        statement.close();
-        conx.close();
+    public static void deleteTable() throws SQLException {
+        String deleteTableSQL = "DROP TABLE test_tbl";
+
+        try (Connection connection = connectDB();
+             Statement statement = connection.createStatement()) {
+            statement.execute(deleteTableSQL);
+            System.out.println("Table deleted ok!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
 }
